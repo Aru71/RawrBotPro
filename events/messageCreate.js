@@ -1,28 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-const PrefixConfig = require('../schemas/prefixConfig');
+const PrefixModel = require('../models/Prefix');
 
 module.exports = {
   name: 'messageCreate',
   async execute(message, client) {
     if (message.author.bot || !message.guild) return;
 
-    let data = await PrefixConfig.findOne({ guildId: message.guild.id });
-    const prefix = data?.prefix || 'r';
+    let guildPrefix = client.prefix;
+    const data = await PrefixModel.findOne({ guildId: message.guild.id });
+    if (data) guildPrefix = data.prefix;
 
-    if (!message.content.startsWith(prefix)) return;
-
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    if (!message.content.startsWith(guildPrefix)) return;
+    const args = message.content.slice(guildPrefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
-    const command = client.prefixCommands.get(commandName);
+    const command = client.commands.get(commandName);
     if (!command) return;
 
     try {
-      command.execute(message, args);
-    } catch (error) {
-      console.error(error);
-      message.reply('❌ Terjadi kesalahan saat menjalankan command.');
+      await command.execute(message, args);
+    } catch (err) {
+      console.error(err);
+      message.reply('❌ Terjadi kesalahan saat menjalankan command ini.');
     }
   }
-}
+};

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+
 const prefixSchema = new mongoose.Schema({
   guildId: { type: String, required: true, unique: true },
-  prefix: { type: String, default: 'r' }
+  prefix: { type: String, required: true, default: 'r' }
 });
-module.exports = mongoose.model('PrefixConfig', prefixSchema);
+
+module.exports = mongoose.model('Prefix', prefixSchema);
